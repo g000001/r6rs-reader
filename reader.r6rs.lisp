@@ -20,6 +20,19 @@
                 Read-r6rs-string))
 
 
+#|
+<string element> → <any character other than " or \>
+         | \a | \b | \t | \n | \v | \f | \r
+         | \" | \\
+         | \<intraline whitespace>*<line ending>
+            <intraline whitespace>*
+         | <inline hex escape>
+
+<inline hex escape> → \x<hex scalar value>;
+<hex scalar value> → <hex digit>+
+|#
+
+
 (defun Read-hex-scalar-value (STREAM &aux (DELIM #\;))
   (loop :for C := (read-char STREAM t nil)
         :until (and C (char= DELIM C))
@@ -38,29 +51,25 @@
                          :adjustable t)) )
     (loop :for c := (read-char STREAM t nil)
           :until (and C (or ESC (char= DELIM C)))
-          :when (and C (char= #\\ C)) 
-            :do (setq ESC t)
-          :do (if ESC
-                  (progn
-                    (setq ESC nil)
-                    (setq C (read-char STREAM t nil))
-                    (vector-push-extend (case C
-                                          (#\a #\Bel)
-                                          (#\b #\Backspace)
-                                          (#\t #\Tab)
-                                          (#\n #\Newline)
-                                          (#\v #\Vt)
-                                          (#\f #\Page)
-                                          (#\r #\Return)
-                                          (#\" #\")
-                                          (#\\ #\\)
-                                          (#\x (code-char
-                                                (Read-hex-scalar-value STREAM)))
-                                          (otherwise 
-                                           (error "invalid escape sequence, ~C"
-                                                  C )))
-                                        ANS ))
-                  (vector-push-extend C ANS) ))
+          :if (and C (char= #\\ C))
+            :do (progn
+                  (setq C (read-char STREAM t nil))
+                  (vector-push-extend (case C
+                                        (#\a #\Bel)
+                                        (#\b #\Backspace)
+                                        (#\t #\Tab)
+                                        (#\n #\Newline)
+                                        (#\v #\Vt)
+                                        (#\f #\Page)
+                                        (#\r #\Return)
+                                        (#\" #\")
+                                        (#\\ #\\)
+                                        (#\x (code-char
+                                              (Read-hex-scalar-value STREAM) ))
+                                        (otherwise 
+                                         (error "invalid escape sequence, ~C" C )))
+                                      ANS ))
+          :else :do (vector-push-extend C ANS))
     (coerce ANS 'simple-string) ))
 
 
