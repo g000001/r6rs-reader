@@ -44,13 +44,12 @@
 
 (defun Read-r6rs-string (STREAM CHAR &aux (DELIM #\"))
   (declare (ignore CHAR))
-  (let ((ESC nil)
-        (ANS (make-array 0
+  (let ((ANS (make-array 0
                          :element-type 'character
                          :fill-pointer 0
                          :adjustable t)) )
     (loop :for C := (read-char STREAM t nil)
-          :until (and C (or ESC (char= DELIM C)))
+          :until (and C (char= DELIM C))
           :if (and C (char= #\\ C))
             :do (let ((C (read-char STREAM t nil)))
                   (vector-push-extend (case C
@@ -68,7 +67,8 @@
                                         (otherwise 
                                          (error "invalid escape sequence, ~C" C) ))
                                       ANS ))
-          :else :do (vector-push-extend C ANS))
+          :else
+            :do (vector-push-extend C ANS))
     (coerce ANS 'simple-string) ))
 
 

@@ -12,13 +12,13 @@
 ;;; 
 
 (defmacro == (x y)
-  `(is (string= ,(let ((*readtable* (find-readtable :reader.r6rs)))
-                   (read-from-string (concatenate 'string 
-                                                  (string #\")
-                                                  (string #\\) 
-                                                  (string x)
-                                                  (string #\"))))
-                ,(string y))))
+  `(is (string= (let ((*readtable* (find-readtable :reader.r6rs)))
+                  (read-from-string (concatenate 'string 
+                                                 (string #\")
+                                                 (string #\\) 
+                                                 (string ,x)
+                                                 (string #\"))))
+                (string ,y))))
 
 
 (test control-char
