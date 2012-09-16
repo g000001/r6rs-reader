@@ -49,11 +49,10 @@
                          :element-type 'character
                          :fill-pointer 0
                          :adjustable t)) )
-    (loop :for c := (read-char STREAM t nil)
+    (loop :for C := (read-char STREAM t nil)
           :until (and C (or ESC (char= DELIM C)))
           :if (and C (char= #\\ C))
-            :do (progn
-                  (setq C (read-char STREAM t nil))
+            :do (let ((C (read-char STREAM t nil)))
                   (vector-push-extend (case C
                                         (#\a #\Bel)
                                         (#\b #\Backspace)
@@ -67,7 +66,7 @@
                                         (#\x (code-char
                                               (Read-hex-scalar-value STREAM) ))
                                         (otherwise 
-                                         (error "invalid escape sequence, ~C" C )))
+                                         (error "invalid escape sequence, ~C" C) ))
                                       ANS ))
           :else :do (vector-push-extend C ANS))
     (coerce ANS 'simple-string) ))
