@@ -1,5 +1,5 @@
 #+BEGIN_SRC
-(in-readtable :reader.r6rs)
+(in-readtable :r6rs-reader)
 
 (progn "\x41;\x41;\n\n\x304a;こんにちは")
 ;=>  "AA
