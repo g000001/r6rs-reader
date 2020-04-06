@@ -2,10 +2,10 @@
 
 (cl:in-package :cl-user)
 
-(defpackage :reader.r6rs
+(defpackage :r6rs-reader
   (:use)
   (:export :Read-r6rs-string))
 
-(defpackage :reader.r6rs.internal
-  (:use :reader.r6rs :cl :named-readtables :fiveam))
+(defpackage :r6rs-reader.internal
+  (:use :r6rs-reader :cl :named-readtables :fiveam))
 

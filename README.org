@@ -1,5 +1,3 @@
-This is the stub README.org for the "reader.r6rs" project.
-
 #+BEGIN_SRC
 (in-readtable :reader.r6rs)
 

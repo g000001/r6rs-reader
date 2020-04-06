@@ -1,13 +1,11 @@
-;;;; reader.r6rs.lisp
+;;;; r6rs-reader.lisp
 
-(cl:in-package :reader.r6rs.internal)
+(cl:in-package :r6rs-reader.internal)
 (in-readtable :standard)
 
-(def-suite reader.r6rs)
+(def-suite r6rs-reader)
 
-(in-suite reader.r6rs)
-
-;;; "reader.r6rs" goes here. Hacks and glory await!
+(in-suite r6rs-reader)
 
 (declaim (ftype (function (stream) 
                           (values (or fixnum null) &optional)) 
@@ -50,7 +48,7 @@
                          :adjustable t)) )
     (loop :for C := (read-char STREAM t nil)
           :until (and C (char= DELIM C))
-          :if (and C (char= #\\ C))
+          :if (char= #\\ C)
             :do (let ((C (read-char STREAM t nil)))
                   (vector-push-extend (case C
                                         (#\a #\Bel)

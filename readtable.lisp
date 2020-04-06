@@ -1,18 +1,18 @@
 ;;;; readtable.lisp
 
-(cl:in-package :reader.r6rs.internal)
+(cl:in-package :r6rs-reader.internal)
 (in-readtable :common-lisp)
 
-(defreadtable :reader.r6rs
-  (:merge :standard)
-  (:macro-char #\" #'reader.r6rs:Read-r6rs-string)
+(defreadtable :r6rs-reader
+;;  (:merge :standard)
+  (:macro-char #\" #'r6rs-reader:Read-r6rs-string)
   (:case :upcase))
 
 
 ;;; 
 
 (defmacro == (x y)
-  `(is (string= (let ((*readtable* (find-readtable :reader.r6rs)))
+  `(is (string= (let ((*readtable* (find-readtable :r6rs-reader)))
                   (read-from-string (concatenate 'string 
                                                  (string #\")
                                                  (string #\\) 
