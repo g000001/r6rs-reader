@@ -40,6 +40,28 @@
                                           :radix 16.)))))
 
 
+(deftype Intraline-white-space ()
+  '(member #\Space #\Tab))
+
+
+(defun Ignore-intraline-white-spaces (STREAM)
+  (loop :for C := (peek-char nil STREAM t nil)
+        :while (and C (typep C 'Intraline-white-space))
+        :do (read-char STREAM t nil))
+  (values))
+
+
+(defun Ignore-intraline-white-spaces-and-line-ending (STREAM)
+  (loop :for C := (read-char STREAM t nil)
+        :while (and C (typep C 'Intraline-white-space))
+        :collect C :into buf
+        :finally (cond ((char= #\Newline C)
+                        (Ignore-intraline-white-spaces STREAM))
+                       (T (unread-char C STREAM)
+                          (error "invalid escape sequence, \\"))))
+  (values))
+
+
 (defun Read-r6rs-string (STREAM CHAR &aux (DELIM #\"))
   (declare (ignore CHAR))
   (let ((ANS (make-array 0
@@ -50,21 +72,25 @@
           :until (and C (char= DELIM C))
           :if (char= #\\ C)
             :do (let ((C (read-char STREAM t nil)))
-                  (vector-push-extend (case C
-                                        (#\a #\Bel)
-                                        (#\b #\Backspace)
-                                        (#\t #\Tab)
-                                        (#\n #\Newline)
-                                        (#\v #\Vt)
-                                        (#\f #\Page)
-                                        (#\r #\Return)
-                                        (#\" #\")
-                                        (#\\ #\\)
-                                        (#\x (code-char
-                                              (Read-hex-scalar-value STREAM) ))
-                                        (otherwise 
-                                         (error "invalid escape sequence, ~C" C) ))
-                                      ANS ))
+                  (case C
+                    (#\Newline (Ignore-intraline-white-spaces STREAM))
+                    ((#\Space #\Tab) (Ignore-intraline-white-spaces-and-line-ending STREAM))
+                    (otherwise
+                     (vector-push-extend (case C
+                                           (#\a #\Bel)
+                                           (#\b #\Backspace)
+                                           (#\t #\Tab)
+                                           (#\n #\Newline)
+                                           (#\v #\Vt)
+                                           (#\f #\Page)
+                                           (#\r #\Return)
+                                           (#\" #\")
+                                           (#\\ #\\)
+                                           (#\x (code-char
+                                                 (Read-hex-scalar-value STREAM) ))
+                                           (otherwise 
+                                            (error "invalid escape sequence, ~C" C) ))
+                                         ANS ))))
           :else
             :do (vector-push-extend C ANS))
     (coerce ANS 'simple-string) ))
